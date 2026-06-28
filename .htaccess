@@ -1,0 +1,23 @@
+RewriteEngine On
+
+# HTTPS redirect
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Block direct HTTP access to lib/
+RewriteRule ^lib/ - [F,L]
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: blob:; style-src 'self'"
+</IfModule>
+
+# PHP upload limits (override hosting defaults if permitted)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 100M
+    php_value post_max_size       102M
+    php_value max_execution_time  120
+    php_value max_input_time      120
+</IfModule>
